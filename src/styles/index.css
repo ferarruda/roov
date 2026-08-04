@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── Design tokens ROOV ────────────────────────────────────────────────────
+   Fonte: Design ROOV Mobile App (Figma) + Cap. 13 do ROOV Product.
+   Nunca hardcodar cor em componente: usar var(--roov-*) ou as classes utilitárias.
+   ------------------------------------------------------------------------- */
+:root {
+  --background: #050505;
+  --foreground: #f5f5f5;
+  --muted-foreground: #b8b8b8;
+
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.1);
+
+  /* Gradiente oficial da marca */
+  --gradient-start: #7b2dff;
+  --gradient-mid-1: #ff0f7b;
+  --gradient-mid-2: #ff6a2a;
+  --gradient-end: #ffb400;
+  --roov-gradient: linear-gradient(
+    135deg,
+    var(--gradient-start) 0%,
+    var(--gradient-mid-1) 33%,
+    var(--gradient-mid-2) 66%,
+    var(--gradient-end) 100%
+  );
+
+  /* Categoria principal — Sistema Oficial de Filtros (Cap. 10) */
+  --cat-entretenimento: #8b5cff;
+  --cat-gastronomia: #ff2d8d;
+  --cat-natureza: #ff7a1a;
+  --cat-passeios: #ffc83d;
+
+  /* Classificação da Biblioteca (Cap. 14) */
+  --lib-favorito: #ff0f7b;
+  --lib-quero: #ffc83d;
+  --lib-vivido: #22c55e;
+
+  --radius: 1rem;
+  --nav-height: 84px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-border: var(--border);
+  --color-cat-entretenimento: var(--cat-entretenimento);
+  --color-cat-gastronomia: var(--cat-gastronomia);
+  --color-cat-natureza: var(--cat-natureza);
+  --color-cat-passeios: var(--cat-passeios);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overscroll-behavior-y: none;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  .roov-gradient {
+    background: var(--roov-gradient);
+  }
+
+  .roov-gradient-text {
+    background: var(--roov-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@keyframes roov-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes roov-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes roov-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: roov-fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-sheet-up {
+  animation: roov-sheet-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: roov-fade-in 0.24s ease both;
+}

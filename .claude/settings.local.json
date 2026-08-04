@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/macbookpro/Desktop/**)",
+      "Read(//Users/macbookpro/Documents/**)",
+      "Bash(find ~/Desktop/\"meus codigos\" -type f | head -40 2>/dev/null; find ~/ -maxdepth 3 -name \"package.json\" 2>/dev/null | grep -v node_modules | head -20)",
+      "Bash(claude --version)",
+      "Bash(npm --version)",
+      "Bash(npm config *)",
+      "Bash(CLAUDE_CODE_TMPDIR=/tmp npx expo install expo-linear-gradient --prefix /Users/macbookpro/Documents/ROOV)",
+      "Bash(npx expo *)",
+      "Bash(npm install *)",
+      "Bash(git --version)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Bash(command -v brew)",
+      "Bash(brew --version)",
+      "Bash(echo \"brew OK: $\\(brew --version)",
+      "Bash(curl -fsSLI -o /dev/null -w '%{url_effective}\\\\n' https://github.com/cli/cli/releases/latest)",
+      "Read(//Users/macbookpro/**)",
+      "Bash(printf '\\\\n# Adicionado pelo Claude Code: GitHub CLI \\(gh\\) e binarios locais\\\\nexport PATH=\"$HOME/.local/bin:$PATH\"\\\\n')",
+      "Bash(curl -s http://localhost:8080/)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(xargs kill -9)",
+      "Bash(command -v ffmpeg)"
+    ]
+  }
+}
