@@ -1,21 +1,13 @@
-<<<<<<< HEAD
 node_modules/
 dist/
+dist-ssr/
 build/
 coverage/
+.vite/
 .env
 .env.*
 !.env.example
 .DS_Store
 *.log
-supabase/.temp/
-=======
-node_modules
-dist
-dist-ssr
-.vite
 *.local
-.DS_Store
-.env
-.env.local
->>>>>>> 2c406aa3baad1a2c43886edf827425f2023a78a4
+supabase/.temp/

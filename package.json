@@ -1,27 +1,21 @@
 {
-<<<<<<< HEAD
   "name": "roov",
   "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ROOV — plataforma de descoberta de experiências. Monorepo com o frontend web, a API e o pacote compartilhado de domínio e motores.",
   "packageManager": "pnpm@9.15.0",
   "engines": { "node": ">=22" },
   "scripts": {
     "dev:api": "pnpm --filter @roov/api dev",
-    "dev:web": "pnpm --filter roov-app dev",
+    "dev:web": "vite",
     "build": "pnpm -r build",
+    "build:web": "vite build",
+    "preview": "vite preview",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "db:migrate": "pnpm --filter @roov/api db:migrate",
     "db:studio": "pnpm --filter @roov/api db:studio"
-=======
-  "name": "roov-app",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "description": "ROOV — plataforma social de descoberta de experiências. Front-end web (React + JavaScript).",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "0.487.0",
@@ -34,6 +28,5 @@
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"
->>>>>>> 2c406aa3baad1a2c43886edf827425f2023a78a4
   }
 }
