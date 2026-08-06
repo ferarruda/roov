@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "color-play-sports",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-lc", "cd /Users/macbookpro/Documents/color-play-sports && $HOME/.bun/bin/bun run dev"],
+      "port": 8080
+    },
+    {
+      "name": "roov-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}
