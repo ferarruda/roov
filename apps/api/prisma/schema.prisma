@@ -1,0 +1,103 @@
+// Schema do banco do ROOV.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [postgis, pg_trgm]
+}
+
+// ─── Enums do domínio ────────────────────────────────────────────────────────
+//
+// Os valores replicam exatamente `domain/types.js` do frontend, em português.
+// Traduzir para inglês aqui criaria uma tabela de conversão entre backend e
+// frontend — camada que só existe para satisfazer preferência de idioma e que
+// vaza erro toda vez que alguém esquece de atualizá-la.
+
+enum UserStatus {
+  novo
+  ativo
+  suspenso
+  banido
+  excluido
+}
+
+enum UserRole {
+  usuario
+  premium
+  business
+  moderador
+  admin
+}
+
+// ─── Usuário ─────────────────────────────────────────────────────────────────
+
+model User {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Credencial de acesso. Nunca exposta em respostas da API.
+  email String @unique
+
+  /// Hash Argon2id. A senha em texto puro nunca é persistida nem registrada em log.
+  passwordHash String @map("password_hash")
+
+  /// Identificador público (@handle). Único e imutável nesta fase.
+  username String @unique
+
+  name String
+
+  // Campos de perfil. Opcionais porque o cadastro do MVP pede só o essencial;
+  // o preenchimento é responsabilidade da Fase 3.
+  avatar  String?
+  bio     String?
+  city    String?
+  state   String?
+  country String?
+
+  status UserStatus @default(novo)
+  role   UserRole   @default(usuario)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// ─── Sessão ──────────────────────────────────────────────────────────────────
+
+/// Refresh token persistido.
+///
+/// Existe por um motivo só: tornar o logout real. Um access token JWT não é
+/// revogável — vale até expirar, aconteça o que acontecer. Guardando o refresh
+/// token no banco, encerrar sessão passa a ter efeito no servidor, e uma
+/// sessão comprometida pode ser cortada.
+model RefreshToken {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// SHA-256 do token, nunca o token em si.
+  ///
+  /// Se o banco vazar, os tokens não são utilizáveis. SHA-256 e não Argon2 de
+  /// propósito: o token é 32 bytes aleatórios, portanto imune a ataque de
+  /// dicionário. Argon2 aqui só somaria centenas de milissegundos a cada
+  /// renovação, sem ganho de segurança.
+  tokenHash String @unique @map("token_hash")
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  /// Usado no logout global e na detecção de reuso.
+  @@index([userId])
+  @@map("refresh_tokens")
+}

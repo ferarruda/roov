@@ -1,0 +1,28 @@
+# Postgres local para desenvolvimento.
+#
+# Substitui o Supabase CLI: como a autenticação passou a ser nossa, não há mais
+# necessidade do schema `auth` do GoTrue. Um Postgres comum basta, sobe em
+# segundos e não amarra o desenvolvimento a nenhum provedor.
+#
+#   docker compose up -d
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: roov-postgres
+    environment:
+      POSTGRES_USER: roov
+      POSTGRES_PASSWORD: roov
+      POSTGRES_DB: roov
+    ports:
+      - '5432:5432'
+    volumes:
+      - roov-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U roov -d roov']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  roov-pgdata:
