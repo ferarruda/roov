@@ -7,10 +7,12 @@
 
 import { useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './state/AuthProvider.jsx';
 import { RoovProvider } from './state/RoovProvider.jsx';
 import { PlaceActionsProvider } from './components/PlaceActions.jsx';
 import { AppShell } from './components/AppShell.jsx';
 import { SplashScreen } from './modules/onboarding/SplashScreen.jsx';
+import { AuthModule } from './modules/onboarding/AuthModule.jsx';
 import { DiscoveryModule } from './modules/discovery/DiscoveryModule.jsx';
 import { CommunitiesModule } from './modules/communities/CommunitiesModule.jsx';
 import { CommunityDetailModule } from './modules/communities/CommunityDetailModule.jsx';
@@ -27,6 +29,33 @@ export default function App() {
     return (
       <div className="mx-auto h-full w-full max-w-md">
         <SplashScreen onComplete={() => setShowSplash(false)} />
+      </div>
+    );
+  }
+
+  return (
+    <AuthProvider>
+      <AuthGate />
+    </AuthProvider>
+  );
+}
+
+/**
+ * Portão de autenticação real. `RoovProvider` (mundo mock) só monta depois
+ * que existe uma sessão — hoje um usuário real e o "perfil" mock ainda são
+ * pessoas diferentes; misturá-los é trabalho da Fase 3.
+ */
+function AuthGate() {
+  const { status } = useAuth();
+
+  if (status === 'checking') {
+    return <div className="mx-auto h-full w-full max-w-md bg-[var(--background)]" />;
+  }
+
+  if (status === 'anonymous') {
+    return (
+      <div className="mx-auto h-full w-full max-w-md">
+        <AuthModule />
       </div>
     );
   }

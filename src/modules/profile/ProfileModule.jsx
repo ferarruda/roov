@@ -7,11 +7,12 @@
  */
 
 import { useMemo, useState } from 'react';
-import { Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { PlaceCard } from '../../components/PlaceCard.jsx';
 import { PostCard } from '../../components/PostCard.jsx';
 import { EmptyState, SegmentedTabs } from '../../components/ui/primitives.jsx';
 import { useRoov } from '../../state/RoovProvider.jsx';
+import { useAuth } from '../../state/AuthProvider.jsx';
 
 const TABS = [
   { id: 'posts', label: 'Posts' },
@@ -21,6 +22,7 @@ const TABS = [
 
 export function ProfileModule() {
   const { user, profile, posts, placeById, collections, library, userDna, actions } = useRoov();
+  const { logout } = useAuth();
   const [tab, setTab] = useState('posts');
 
   const myPosts = useMemo(
@@ -39,14 +41,24 @@ export function ProfileModule() {
     <div className="scrollbar-hide h-full overflow-y-auto safe-bottom">
       <header className="flex items-center justify-between px-4 pb-2 pt-4">
         <h1 className="text-lg font-semibold">Perfil</h1>
-        <button
-          type="button"
-          aria-label="Configurações"
-          onClick={() => actions.toast('Configurações chegam na próxima sprint')}
-          className="glass flex h-9 w-9 items-center justify-center rounded-full"
-        >
-          <Settings className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Sair"
+            onClick={logout}
+            className="glass flex h-9 w-9 items-center justify-center rounded-full"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Configurações"
+            onClick={() => actions.toast('Configurações chegam na próxima sprint')}
+            className="glass flex h-9 w-9 items-center justify-center rounded-full"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
+        </div>
       </header>
 
       <div className="space-y-6 px-4">
