@@ -3,26 +3,14 @@ import { PinoLogger } from 'nestjs-pino';
 import type { User } from '@prisma/client';
 import { AppException } from '../../common/errors/app.exception';
 import { UsersRepository } from '../users/users.repository';
+import { toPublicUser, type PublicUser } from '../users/users.service';
 import { PasswordService } from './password.service';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { TokenService } from './token.service';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
-/** Perfil devolvido ao cliente. Nunca inclui `passwordHash`. */
-export interface PublicUser {
-  id: string;
-  email: string;
-  username: string;
-  name: string;
-  avatar: string | null;
-  bio: string | null;
-  city: string | null;
-  state: string | null;
-  country: string | null;
-  status: User['status'];
-  role: User['role'];
-}
+export type { PublicUser };
 
 export interface AuthSession {
   accessToken: string;
@@ -223,28 +211,4 @@ export class AuthService {
 
     return { accessToken, refreshToken: token, user: toPublicUser(user) };
   }
-}
-
-/**
- * Projeção pública do usuário.
- *
- * Escrita como lista explícita de campos, e não como `delete user.passwordHash`,
- * de propósito: com a lista, um campo sensível adicionado no futuro fica de
- * fora por padrão. Com o `delete`, ele vazaria até alguém lembrar de removê-lo
- * — segurança que depende de memória humana não é segurança.
- */
-function toPublicUser(user: User): PublicUser {
-  return {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    name: user.name,
-    avatar: user.avatar,
-    bio: user.bio,
-    city: user.city,
-    state: user.state,
-    country: user.country,
-    status: user.status,
-    role: user.role,
-  };
 }

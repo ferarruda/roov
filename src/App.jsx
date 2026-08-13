@@ -42,11 +42,11 @@ export default function App() {
 
 /**
  * Portão de autenticação real. `RoovProvider` (mundo mock) só monta depois
- * que existe uma sessão — hoje um usuário real e o "perfil" mock ainda são
- * pessoas diferentes; misturá-los é trabalho da Fase 3.
+ * que existe uma sessão. A identidade real (`user`) é passada adiante para
+ * o `RoovProvider` mesclar com o "perfil" mock — ver `RoovProvider.jsx`.
  */
 function AuthGate() {
-  const { status } = useAuth();
+  const { status, user } = useAuth();
 
   if (status === 'checking') {
     return <div className="mx-auto h-full w-full max-w-md bg-[var(--background)]" />;
@@ -61,7 +61,7 @@ function AuthGate() {
   }
 
   return (
-    <RoovProvider>
+    <RoovProvider authUser={user}>
       <PlaceActionsProvider>
         <AppShell>
           <Routes>

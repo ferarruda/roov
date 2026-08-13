@@ -8,7 +8,7 @@ import type { Request } from 'express';
 import { AppException } from '../../../common/errors/app.exception';
 import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
 import { TokenService } from '../token.service';
-import type { RequestWithUser } from '../types/authenticated-user';
+import type { RequestWithUser } from '../../../common/types/authenticated-user';
 
 /**
  * Guard global de autenticação.

@@ -1,18 +1,22 @@
 import { Module } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
 
 /**
- * Módulo de usuários — apenas persistência nesta fase.
+ * Módulo de usuários.
  *
- * Sem controller: perfil, edição e preferências são a Fase 3. A tabela e o
- * repositório existem agora porque autenticação sem usuário não faz sentido.
+ * `UsersRepository` é exportado para que `AuthModule` o consuma — a
+ * dependência aponta de auth para users, nunca o contrário. `users` não
+ * importa nada de `auth`: `@CurrentUser()`/`AuthenticatedUser`, usados pelo
+ * controller abaixo, vivem em `common`, exatamente para tornar isso possível
+ * sem violar essa direção.
  *
- * O repositório é exportado para que `AuthModule` o consuma. A dependência
- * aponta de auth para users, nunca o contrário — users não sabe que
- * autenticação existe.
+ * Edição de informações — Fase 3. Avatar e preferências continuam de fora.
  */
 @Module({
-  providers: [UsersRepository],
-  exports: [UsersRepository],
+  controllers: [UsersController],
+  providers: [UsersRepository, UsersService],
+  exports: [UsersRepository, UsersService],
 })
 export class UsersModule {}

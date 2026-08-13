@@ -145,7 +145,7 @@ function reducer(state, action) {
   }
 }
 
-export function RoovProvider({ children }) {
+export function RoovProvider({ children, authUser }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -306,9 +306,33 @@ export function RoovProvider({ children }) {
     [library, state.filters, toast],
   );
 
+  /**
+   * Identidade real por cima da mock — reativo, de propósito (Fase 3, corte
+   * 2): edições feitas em `AuthProvider.updateProfile` mudam `authUser`, e
+   * este `useMemo` roda de novo, então o Perfil reflete a edição sem precisar
+   * de dispatch nenhum. `id` nunca muda: é a chave que liga posts/biblioteca/
+   * DNA mock, e trocá-la quebraria essas relações.
+   */
+  const user = useMemo(
+    () =>
+      authUser && state.user
+        ? {
+            ...state.user,
+            name: authUser.name,
+            username: authUser.username,
+            avatar: authUser.avatar,
+            bio: authUser.bio,
+            city: authUser.city,
+            state: authUser.state,
+            country: authUser.country,
+          }
+        : state.user,
+    [state.user, authUser],
+  );
+
   const value = useMemo(
-    () => ({ ...state, placeById, library, userDna, moment, knownPlaceIds, actions }),
-    [state, placeById, library, userDna, moment, knownPlaceIds, actions],
+    () => ({ ...state, user, placeById, library, userDna, moment, knownPlaceIds, actions }),
+    [state, user, placeById, library, userDna, moment, knownPlaceIds, actions],
   );
 
   return <RoovContext.Provider value={value}>{children}</RoovContext.Provider>;

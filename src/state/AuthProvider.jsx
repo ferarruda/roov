@@ -9,6 +9,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authService, clearSession, loadSession, saveSession } from '../services/auth.js';
+import { usersService } from '../services/users.js';
 
 const AuthContext = createContext(null);
 
@@ -59,6 +60,15 @@ export function AuthProvider({ children }) {
     setStatus('authenticated');
   }, []);
 
+  /** Edição de informações — Fase 3. */
+  const updateProfile = useCallback(async (data) => {
+    const session = loadSession();
+    const updated = await usersService.updateMe(session.accessToken, data);
+    saveSession({ ...session, user: updated });
+    setUser(updated);
+    return updated;
+  }, []);
+
   const logout = useCallback(async () => {
     const session = loadSession();
     // Best-effort: mesmo se a chamada falhar (rede, token já expirado), o
@@ -77,8 +87,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ status, user, register, login, logout }),
-    [status, user, register, login, logout],
+    () => ({ status, user, register, login, logout, updateProfile }),
+    [status, user, register, login, logout, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

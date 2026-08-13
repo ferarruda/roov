@@ -10,12 +10,23 @@ export interface CreateUserData {
 }
 
 /**
+ * Campos editáveis pela Fase 3 — deliberadamente não é `Prisma.UserUpdateInput`.
+ * Um tipo genérico deixaria `passwordHash`/`email`/`role` alcançáveis por este
+ * mesmo caminho; a lista explícita fecha essa porta por padrão.
+ */
+export interface UpdateUserData {
+  name?: string;
+  bio?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+}
+
+/**
  * Persistência de usuários.
  *
- * Nesta fase o módulo `users` é só isto: um repositório. Perfil, edição, avatar
- * e preferências são a Fase 3. A tabela existe agora porque autenticação sem
- * usuário não faz sentido — mas nada além do necessário para autenticar entra
- * aqui.
+ * Avatar (upload) e preferências ainda não entram aqui — Fase 3 segue em
+ * cortes; este é só o de edição de informações básicas.
  *
  * Única camada do sistema autorizada a tocar o Prisma para esta entidade.
  */
@@ -37,6 +48,10 @@ export class UsersRepository {
 
   create(data: CreateUserData): Promise<User> {
     return this.prisma.user.create({ data });
+  }
+
+  update(id: string, data: UpdateUserData): Promise<User> {
+    return this.prisma.user.update({ where: { id }, data });
   }
 
   /**

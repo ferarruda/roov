@@ -7,12 +7,13 @@
  */
 
 import { useMemo, useState } from 'react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Pencil, Settings } from 'lucide-react';
 import { PlaceCard } from '../../components/PlaceCard.jsx';
 import { PostCard } from '../../components/PostCard.jsx';
 import { EmptyState, SegmentedTabs } from '../../components/ui/primitives.jsx';
 import { useRoov } from '../../state/RoovProvider.jsx';
 import { useAuth } from '../../state/AuthProvider.jsx';
+import { EditProfileSheet } from './EditProfileSheet.jsx';
 
 const TABS = [
   { id: 'posts', label: 'Posts' },
@@ -24,6 +25,7 @@ export function ProfileModule() {
   const { user, profile, posts, placeById, collections, library, userDna, actions } = useRoov();
   const { logout } = useAuth();
   const [tab, setTab] = useState('posts');
+  const [editing, setEditing] = useState(false);
 
   const myPosts = useMemo(
     () => posts.filter((post) => post.authorId === user?.id),
@@ -42,6 +44,14 @@ export function ProfileModule() {
       <header className="flex items-center justify-between px-4 pb-2 pt-4">
         <h1 className="text-lg font-semibold">Perfil</h1>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Editar perfil"
+            onClick={() => setEditing(true)}
+            className="glass flex h-9 w-9 items-center justify-center rounded-full"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
           <button
             type="button"
             aria-label="Sair"
@@ -63,21 +73,44 @@ export function ProfileModule() {
 
       <div className="space-y-6 px-4">
         <section className="flex items-center gap-4">
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="h-20 w-20 rounded-full border-2 border-[#8B5CFF] object-cover"
-          />
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-20 w-20 rounded-full border-2 border-[#8B5CFF] object-cover"
+            />
+          ) : (
+            <div
+              aria-label={user.name}
+              className="roov-gradient flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-[#8B5CFF] text-2xl font-semibold text-white"
+            >
+              {user.name?.trim()?.[0]?.toUpperCase() ?? '?'}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-lg font-semibold">{user.name}</h2>
             <p className="text-xs text-[var(--muted-foreground)]">@{user.username}</p>
-            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {user.city} — {user.state}
-            </p>
+            {(user.city || user.state) && (
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                {[user.city, user.state].filter(Boolean).join(' — ')}
+              </p>
+            )}
           </div>
         </section>
 
-        <p className="text-sm leading-relaxed">{user.bio}</p>
+        {user.bio ? (
+          <p className="text-sm leading-relaxed">{user.bio}</p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="text-sm text-[var(--muted-foreground)] underline underline-offset-2"
+          >
+            Adicionar uma bio
+          </button>
+        )}
+
+        <EditProfileSheet open={editing} onClose={() => setEditing(false)} user={user} />
 
         {/* Nível e XP — Cap. 53 */}
         <section className="glass rounded-2xl p-4">

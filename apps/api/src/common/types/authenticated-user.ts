@@ -8,6 +8,10 @@ import type { UserRole } from '@prisma/client';
  * consulta ao banco. Handlers que precisam do perfil inteiro o buscam
  * explicitamente, e essa consulta fica visível no código em vez de escondida
  * no guard.
+ *
+ * Vive em `common`, não em `auth`: o guard que o produz é global, e qualquer
+ * módulo protegido (não só `auth`) precisa ler `@CurrentUser()` sem passar a
+ * depender do módulo de autenticação.
  */
 export interface AuthenticatedUser {
   id: string;
