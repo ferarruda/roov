@@ -57,4 +57,12 @@ export const authService = {
   async me(accessToken) {
     return apiRequest('/auth/me', { accessToken });
   },
+
+  /**
+   * @param {string} accessToken
+   * @param {{ currentPassword: string, newPassword: string }} data
+   */
+  async changePassword(accessToken, data) {
+    return apiRequest('/auth/change-password', { method: 'POST', body: data, accessToken });
+  },
 };

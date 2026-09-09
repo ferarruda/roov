@@ -7,6 +7,7 @@ import { toPublicUser, type PublicUser } from '../users/users.service';
 import { PasswordService } from './password.service';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { TokenService } from './token.service';
+import type { ChangePasswordDto } from './dto/change-password.dto';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 
@@ -181,6 +182,37 @@ export class AuthService {
     if (stored && !stored.revokedAt) {
       await this.refreshTokens.revoke(stored.id);
     }
+  }
+
+  /**
+   * Troca de senha — Fase 3.
+   *
+   * Encerra todas as sessões (inclusive a atual) ao final, via o mesmo
+   * `revokeAllForUser` usado na detecção de reuso de refresh token. Trocar
+   * senha é, na prática, uma resposta a "posso ter vazado minha senha";
+   * deixar sessões antigas vivas contradiria o propósito.
+   */
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+    const user = await this.users.findById(userId);
+
+    if (!user) {
+      throw AppException.unauthenticated('Sessão inválida.');
+    }
+
+    const currentMatches = await this.passwords.verify(
+      user.passwordHash,
+      dto.currentPassword,
+    );
+
+    if (!currentMatches) {
+      throw AppException.unauthenticated('Senha atual incorreta.');
+    }
+
+    const passwordHash = await this.passwords.hash(dto.newPassword);
+    await this.users.updatePasswordHash(user.id, passwordHash);
+    await this.refreshTokens.revokeAllForUser(user.id);
+
+    this.logger.info({ userId: user.id }, 'Senha alterada — sessões encerradas');
   }
 
   /** Perfil do usuário autenticado. */

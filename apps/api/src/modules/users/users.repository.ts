@@ -55,6 +55,15 @@ export class UsersRepository {
   }
 
   /**
+   * Separado de `update()` de propósito: `UpdateUserData` não alcança
+   * `passwordHash`, e deve continuar assim. Troca de senha é o único
+   * caminho autorizado a escrever este campo fora do cadastro.
+   */
+  async updatePasswordHash(id: string, passwordHash: string): Promise<void> {
+    await this.prisma.user.update({ where: { id }, data: { passwordHash } });
+  }
+
+  /**
    * Traduz a violação de unicidade do Postgres para o campo que a causou.
    *
    * Existe para o `AuthService` distinguir "e-mail já usado" de "username já

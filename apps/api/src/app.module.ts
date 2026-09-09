@@ -12,6 +12,7 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { UsersModule } from './modules/users/users.module';
+import { PlacesModule } from './modules/places/places.module';
 
 /**
  * Módulo raiz.
@@ -83,8 +84,8 @@ import { UsersModule } from './modules/users/users.module';
     HealthModule,
     UsersModule,
     AuthModule,
+    PlacesModule,
     // Fase 3 → evolução do domínio de usuários (perfil, preferências)
-    // Fase 4 → PlacesModule
   ],
   providers: [
     /**

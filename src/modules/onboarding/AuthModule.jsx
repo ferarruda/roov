@@ -9,8 +9,10 @@
 import { useState } from 'react';
 import { LoginForm } from './LoginForm.jsx';
 import { RegisterForm } from './RegisterForm.jsx';
+import { useAuth } from '../../state/AuthProvider.jsx';
 
 export function AuthModule() {
+  const { notice } = useAuth();
   const [mode, setMode] = useState('login');
 
   return (
@@ -26,6 +28,12 @@ export function AuthModule() {
             : 'Crie sua conta e comece a descobrir experiências.'}
         </p>
       </div>
+
+      {notice && (
+        <p className="mb-4 rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[11px] text-[var(--muted-foreground)]">
+          {notice}
+        </p>
+      )}
 
       {mode === 'login' ? (
         <LoginForm onSwitchToRegister={() => setMode('register')} />

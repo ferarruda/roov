@@ -23,11 +23,10 @@ export interface ResponseEnvelope<T> {
  * requisição bem-sucedida que produziu resultado errado é tão necessário
  * quanto rastrear uma que falhou.
  *
- * Nota: a primeira versão detectava respostas que já traziam `meta` própria,
- * para uso da paginação. Com a paginação removida do escopo do MVP, aquilo
- * virou ramificação sem nenhum chamador — e código morto envelhece mal, porque
- * ninguém o testa e todos assumem que funciona. Volta quando houver paginação
- * de verdade.
+ * Paginação de verdade chegou na Fase 4 (`PlacesService.list`): quando o
+ * controller já devolve `{ data, meta }` (contrato de cursor do D7 —
+ * `nextCursor`/`hasMore`), este interceptor desembrulha em vez de aninhar de
+ * novo, e mescla `requestId` na `meta` que já veio pronta.
  */
 @Injectable()
 export class ResponseInterceptor<T>
@@ -43,7 +42,31 @@ export class ResponseInterceptor<T>
     const requestId = request?.id;
 
     return next.handle().pipe(
-      map((payload): ResponseEnvelope<T> => ({ data: payload, meta: { requestId } })),
+      map((payload): ResponseEnvelope<T> => {
+        if (hasOwnEnvelope(payload)) {
+          return { data: payload.data as T, meta: { ...payload.meta, requestId } };
+        }
+        return { data: payload, meta: { requestId } };
+      }),
     );
   }
+}
+
+/**
+ * Reconhece um payload já formado como `{ data, meta }` — hoje só usado por
+ * listagens paginadas. Checagem estrutural, não por tipo nominal: o
+ * controller nunca declara "isto é um envelope", só devolve o formato.
+ */
+function hasOwnEnvelope(
+  payload: unknown,
+): payload is { data: unknown; meta: Record<string, unknown> } {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    !Array.isArray(payload) &&
+    'data' in payload &&
+    'meta' in payload &&
+    typeof (payload as { meta: unknown }).meta === 'object' &&
+    (payload as { meta: unknown }).meta !== null
+  );
 }

@@ -66,6 +66,7 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   refreshTokens RefreshToken[]
+  places        Place[]
 
   @@map("users")
 }
@@ -100,4 +101,63 @@ model RefreshToken {
   /// Usado no logout global e na detecção de reuso.
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+// ─── Lugares ─────────────────────────────────────────────────────────────────
+
+enum PlaceCategory {
+  entretenimento
+  gastronomia
+  natureza
+  passeios
+}
+
+enum PlaceStatus {
+  novo
+  ativo
+  arquivado
+  oculto
+}
+
+/// A entidade mais importante do produto (Cap. 39 do frontend).
+///
+/// Sem `distanceKm`: é projeção de consulta (depende de quem pergunta e de
+/// onde), nunca um atributo do lugar — armazená-lo impediria cache
+/// compartilhado entre usuários. Sem `dna`/`postsCount`/`savesCount`: são
+/// derivados de Posts (Fase 5) e DNA (Fase 6), que ainda não existem.
+model Place {
+  id String @id @default(uuid()) @db.Uuid
+
+  name      String
+  category  PlaceCategory
+  placeType String        @map("place_type")
+
+  neighborhood String
+  city         String
+  state        String
+  country      String
+
+  /// Plain columns, não `geography`: Prisma não suporta tipos PostGIS
+  /// nativamente (ver `docs/FASE-1-DECISOES-TECNICAS.md`, D4). O índice
+  /// GiST funcional sobre estas duas colunas é criado à mão na migration.
+  latitude  Float @db.DoublePrecision
+  longitude Float @db.DoublePrecision
+
+  photos     String[]
+  priceRange Int      @map("price_range")
+
+  /// `{ open: "HH:MM", close: "HH:MM", closedOn?: number[] }` — espelha
+  /// exatamente o formato de `domain/types.js` do frontend.
+  hours Json
+
+  status PlaceStatus @default(novo)
+
+  createdById String @map("created_by_id") @db.Uuid
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("places")
 }

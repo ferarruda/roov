@@ -16,6 +16,12 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [status, setStatus] = useState('checking');
   const [user, setUser] = useState(null);
+  /**
+   * Mensagem de uma vez só, para explicar um logout que não é erro (ex.:
+   * troca de senha). `login`/`register` limpam, pra não sobreviver a uma
+   * nova tentativa de entrar.
+   */
+  const [notice, setNotice] = useState(null);
 
   // Sessão persiste entre recarregamentos: se há um refresh token salvo,
   // tenta renovar em silêncio antes de decidir que o usuário está deslogado.
@@ -50,6 +56,7 @@ export function AuthProvider({ children }) {
     const session = await authService.register(data);
     saveSession(session);
     setUser(session.user);
+    setNotice(null);
     setStatus('authenticated');
   }, []);
 
@@ -57,6 +64,7 @@ export function AuthProvider({ children }) {
     const session = await authService.login(data);
     saveSession(session);
     setUser(session.user);
+    setNotice(null);
     setStatus('authenticated');
   }, []);
 
@@ -67,6 +75,20 @@ export function AuthProvider({ children }) {
     saveSession({ ...session, user: updated });
     setUser(updated);
     return updated;
+  }, []);
+
+  /**
+   * Troca de senha — Fase 3. O backend já revoga todas as sessões (inclusive
+   * esta); por isso o sucesso limpa a sessão local direto, sem chamar
+   * `/auth/logout` (o token já está morto no servidor).
+   */
+  const changePassword = useCallback(async (data) => {
+    const session = loadSession();
+    await authService.changePassword(session.accessToken, data);
+    clearSession();
+    setUser(null);
+    setNotice('Senha alterada. Faça login novamente.');
+    setStatus('anonymous');
   }, []);
 
   const logout = useCallback(async () => {
@@ -87,8 +109,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ status, user, register, login, logout, updateProfile }),
-    [status, user, register, login, logout, updateProfile],
+    () => ({ status, user, notice, register, login, logout, updateProfile, changePassword }),
+    [status, user, notice, register, login, logout, updateProfile, changePassword],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

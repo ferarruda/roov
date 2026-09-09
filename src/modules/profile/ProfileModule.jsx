@@ -14,6 +14,7 @@ import { EmptyState, SegmentedTabs } from '../../components/ui/primitives.jsx';
 import { useRoov } from '../../state/RoovProvider.jsx';
 import { useAuth } from '../../state/AuthProvider.jsx';
 import { EditProfileSheet } from './EditProfileSheet.jsx';
+import { SettingsSheet } from './SettingsSheet.jsx';
 
 const TABS = [
   { id: 'posts', label: 'Posts' },
@@ -22,10 +23,11 @@ const TABS = [
 ];
 
 export function ProfileModule() {
-  const { user, profile, posts, placeById, collections, library, userDna, actions } = useRoov();
+  const { user, profile, posts, placeById, collections, library, userDna } = useRoov();
   const { logout } = useAuth();
   const [tab, setTab] = useState('posts');
   const [editing, setEditing] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const myPosts = useMemo(
     () => posts.filter((post) => post.authorId === user?.id),
@@ -63,7 +65,7 @@ export function ProfileModule() {
           <button
             type="button"
             aria-label="Configurações"
-            onClick={() => actions.toast('Configurações chegam na próxima sprint')}
+            onClick={() => setSettingsOpen(true)}
             className="glass flex h-9 w-9 items-center justify-center rounded-full"
           >
             <Settings className="h-4 w-4" />
@@ -111,6 +113,7 @@ export function ProfileModule() {
         )}
 
         <EditProfileSheet open={editing} onClose={() => setEditing(false)} user={user} />
+        <SettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
         {/* Nível e XP — Cap. 53 */}
         <section className="glass rounded-2xl p-4">

@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/commo
 import { AuthService, type AuthSession, type PublicUser } from './auth.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -58,6 +59,22 @@ export class AuthController {
   @Post('logout')
   async logout(@Body() dto: RefreshDto): Promise<void> {
     await this.auth.logout(dto.refreshToken);
+  }
+
+  /**
+   * POST /v1/auth/change-password
+   *
+   * Protegida (rota nasce protegida, sem `@Public()`): quem troca a senha já
+   * precisa ter uma sessão. Encerra todas as sessões ao final — ver
+   * `AuthService.changePassword`.
+   */
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('change-password')
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<void> {
+    await this.auth.changePassword(user.id, dto);
   }
 
   /**
